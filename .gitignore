@@ -9,6 +9,3 @@ dist
 
 # mac
 .DS_Store
-
-# とりまpcmは入れない
-src/pcm
