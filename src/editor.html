@@ -1,0 +1,249 @@
+<!doctype html>
+<html>
+
+<head>
+    <script type='text/javascript'>
+        window.$ = window.jQuery = require('jquery');
+        const ipcRenderer = require('electron').ipcRenderer;
+        const fs = require('fs');
+        const renderer = require('electron').ipcRenderer;
+
+        let pattern;
+        let isUiCreated = false;
+        let pcmList = [];
+        const maxLength = 16;
+
+        const speed2pitch = (speed) => {
+            // 再生速度 -> 半音単位
+            if (speed == 0) return 0;
+            return Math.floor(12 * Math.log2(speed));
+        };
+
+        const pitch2speed = (pitch) => {
+            return Math.pow(2, pitch / 12);
+        };
+
+
+        $(() => {
+            ipcRenderer.on('click', (ev, ptn) => {
+                pattern = ptn;
+
+                if (!isUiCreated) createUI();
+                updateAll();
+            }); 
+        });
+
+        const createUI = () => {
+            // まず完成させる。
+            let lane = $('#seq0_lane').html();
+            let sw = $('#seq0_sw').html();
+            let pitch = $('#seq0_pitch').html();
+
+            // maxStep分コピー
+            let lane_ = '',
+                sw_ = '',
+                pitch_ = '';
+            for (let step_i = 0; step_i < maxLength; step_i++) {
+                lane_ += lane.replace(/step0_/g, `step${step_i}_`);
+                sw_ += sw.replace(/step0_/g, `step${step_i}_`);
+                pitch_ += pitch.replace(/step0_/g, `step${step_i}_`);
+            }
+            $('#seq0_lane').html(lane_);
+            $('#seq0_sw').html(sw_);
+            $('#seq0_pitch').html(pitch_);
+
+            // それをパート分コピー
+            let part_org = $('#seq').html();
+            let part = "";
+            for (let part_i = 0; part_i < pattern.length; part_i++) {
+                part += part_org.replace(/seq0_/g, `seq${part_i}_`);
+            }
+            $('#seq').html(part);
+
+            // こっからパートごと設定
+            pattern.forEach(function(seq, part_i) {
+                $(`#seq${part_i}_group`).text(seq['grp']);
+
+                $(`#seq${part_i}_pcm`).on('change', () => {
+                    let pcm = $(`#seq${part_i}_pcm option:selected`).text();
+                    renderer.send('changePcm', {
+                        index: part_i,
+                        pcm: pcm
+                    });
+                });
+
+                $(`#seq${part_i}_length`).val(seq['seq'].length).on('input', () => {
+                    let length = $(`#seq${part_i}_length`).val();
+                    let newSeq = new Array(length);
+                    for (let i = 0; i < length; i++) {
+                        if (i < seq.seq.length && seq.seq[i] != 0) {
+                            let pitch = $(`#seq${part_i}_step${i}_pitch`).val();
+                            newSeq[i] = pitch2speed(pitch);
+                        } else {
+                            newSeq[i] = 0;
+                        }
+                    }
+
+                    renderer.send('changeSeq', {
+                        index: part_i,
+                        seq: newSeq
+                    });
+                });
+
+                $(`#seq${part_i}_volume`).val(seq['vol']).on('input', () => {
+                    let vol = $(`#seq${part_i}_volume`).val();
+                    renderer.send('changeVol', {
+                        index: part_i,
+                        vol: vol
+                    });
+                });
+
+                for (let step_i = 0; step_i < seq['seq'].length; step_i++) {
+                    if (seq['seq'][step_i] != 0) {
+                        $(`#seq${part_i}_step${step_i}_sw`).css('background-color', 'grey');
+                    }
+                    $(`#seq${part_i}_step${step_i}_pitch`).on('input', () => {
+                        if (pattern[part_i]['seq'][step_i] != 0) pattern[part_i]['seq'][step_i] = pitch2speed($(`#seq${part_i}_step${step_i}_pitch`).val());
+                        renderer.send('changeSeq', {
+                            index: part_i,
+                            seq: pattern[part_i]['seq']
+                        });
+                    });
+                }
+            });
+
+            // PCMリストに追加
+            fs.readdir('./src/pcm', (err, files) => {
+                if (err) throw err;
+                let pcmList = files.filter((file) => {
+                    return /.*\.(mp3|wav)$/.test(file);
+                });
+                pattern.forEach(function(seq, part_i) {
+                    pcmList.forEach((pcmFile, index) => {
+                        let option = $('<option>').val(index).text(pcmFile);
+                        if (pcmFile == seq['pcm']) option.prop('selected', true);
+                        $(`#seq${part_i}_pcm`).append(option);
+                    });
+
+                });
+            });
+
+            // add event handler
+            $('td').on('click', function() {
+                let id = $(this).attr('id');
+                if (id == undefined) return;
+                let result = id.match(/seq(\d+)_step(\d+)_sw/);
+                if (result != null) {
+                    let part = result[1];
+                    let step = result[2];
+                    if (step >= pattern[part].seq.length) return;
+                    if (pattern[part].seq[step] == 0) {
+                        let pitch = $(`#seq${part}_step${step}_pitch`).val();
+                        pattern[part].seq[step] = pitch2speed(pitch);
+                    } else {
+                        pattern[part].seq[step] = 0;
+                    }
+                    renderer.send('changeSeq', {
+                        index: part,
+                        seq: pattern[part].seq
+                    });
+                }
+            });
+
+            isUiCreated = true;
+        }
+
+        const updateAll = () => {
+            // 重そう…
+            pattern.forEach(function(seq, part_i) {
+                /*
+                $(`#seq${part_i}_pcm option`).each(() => {
+                    if ($(this).text() == pattern[part_i].pcm) {
+                        $(this).prop('selected', true);
+                    }
+                });
+                */
+                for (let step_i = 0; step_i < maxLength; step_i++) {
+                    if (pattern[part_i].seq.length <= step_i || pattern[part_i].seq[step_i] == 0) {
+                        $(`#seq${part_i}_step${step_i}_sw`).css('background-color', 'white');
+                    } else {
+                        $(`#seq${part_i}_step${step_i}_sw`).css('background-color', 'grey');
+                    }
+                    if (step_i == seq.cnt) {
+                        $(`#seq${part_i}_step${step_i}_lane`).css('background-color', 'grey');
+                    } else {
+                        $(`#seq${part_i}_step${step_i}_lane`).css('background-color', 'white');
+                    }
+
+                    if (step_i < pattern[part_i].seq.length) {
+                        $(`#seq${part_i}_step${step_i}_pitch`).val(speed2pitch(pattern[part_i].seq[step_i]));
+                    }
+                }
+
+            });
+        };
+
+        const test = () => {
+            function writeFile(path, data) {
+                fs.writeFile(path, data, 'utf8', (err) => {
+                    if (err) return console.log(err);
+                });
+            }
+            let pattern2save = JSON.parse(JSON.stringify(pattern));
+            pattern2save.forEach((seq) => {
+                delete seq.amp;
+                delete seq.cnt;
+                delete seq.buf;
+            });
+            writeFile('./src/pattern/save.json', JSON.stringify(pattern2save));
+        };
+    </script>
+
+    <style type="text/css">
+        td {
+            text-align: center;
+            border: 1px solid;
+            width: 50px;
+        }
+
+        tr.lane>td {
+            height: 10px;
+        }
+
+        tr.sw>td {
+            height: 30px;
+        }
+
+        tr.step>td {
+            height: 30px;
+        }
+
+        input.pitch {
+            text-align: center;
+            width: 36px;
+        }
+    </style>
+</head>
+
+<body>
+    <button onClick='test()'>test</button>
+    <div id='seq'>
+        <div id='seq0_group'></div> PCM : <select id='seq0_pcm'></select> Length : <input id='seq0_length' value=16 type='number' step=1 min=1 max=16> Volume : <input id='seq0_volume' type='number' value=1 step=0.1 min=0 max=4><br>
+        <table id='seq0_table'>
+            <tbody>
+                <tr id='seq0_lane' class='lane'>
+                    <td id='seq0_step0_lane'></td>
+                </tr>
+                <tr id='seq0_sw' class='sw'>
+                    <td id='seq0_step0_sw'></td>
+                </tr>
+                <tr id='seq0_pitch' class='pitch'>
+                    <td><input id='seq0_step0_pitch' class='pitch' type='number' step=1 value=0 min=-24 max=24></td>
+                </tr>
+            </tbody>
+        </table>
+        <br>
+    </div>
+</body>
+
+</html>

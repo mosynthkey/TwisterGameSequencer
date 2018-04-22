@@ -1,0 +1,14 @@
+# directories
+bower_components
+node_modules
+dist
+
+# files
+*.tgz
+*.log
+
+# mac
+.DS_Store
+
+# とりまpcmは入れない
+src/pcm

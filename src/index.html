@@ -1,0 +1,74 @@
+<!doctype html>
+<html>
+
+<head>
+    <script type='text/javascript'>
+        window.$ = window.jQuery = require('jquery');
+
+        const fs = require('fs');
+        const TwisterSequencer = require('./TwisterSequencer.js');
+        const TwisterBoard = require('./TwisterBoard.js');
+        const OmniMidiIn = require('./OmniMidiIn.js');
+        const audioContext = new AudioContext();
+
+        let board, sequencer;
+
+        $(() => {
+            // init sequencer
+            sequencer = new TwisterSequencer(audioContext, audioContext.destination);
+            sequencer.loadPattern(JSON.parse(fs.readFileSync('./src/pattern/default.json', 'utf8')));
+            sequencer.clickHandler = () => {
+                // send click to main.js
+                require('electron').ipcRenderer.send('click', sequencer.pattern_);
+            };
+
+            // init board
+            board = new TwisterBoard($('#board')[0].getContext('2d'));
+            $('#board')[0].addEventListener('click', (e) => {
+                [x, y] = board.getClickedCircle(e);
+                if (0 <= x && x <= 3 && 0 <= y && y <= 5) {
+                    board.click(x, y);
+                    sequencer.click(x, y);
+                }
+            }, false);
+
+            // init MIDI
+            let midiIn = new OmniMidiIn();
+            midiIn.handler = (msg) => {
+                if (msg['note'] < 48 || 72 < msg['note']) return; // nanokey
+                let pos = msg['note'] - 48;
+                let x = Math.floor(pos / 6);
+                let y = pos % 6;
+                if (msg['event'] == 'noteOn') {
+                    board.put(x, y);
+                    sequencer.put(x, y);
+                } else if (msg['event'] == 'noteOff') {
+                    board.release(x, y);
+                    sequencer.release(x, y);
+                }
+            };
+
+            // bpm
+            $('#bpm').val(sequencer.bpm_);
+            $('#bpm').change(() => {
+                sequencer.bpm = $('#bpm').val();
+            });
+        });
+
+        const reset = () => {
+            board.reset();
+            sequencer.reset();
+        };
+
+        const test = () => {
+            sequencer.loadPattern(JSON.parse(fs.readFileSync('./src/pattern/save.json', 'utf8')));
+        };
+    </script>
+</head>
+
+<body align='center'>
+    <canvas id='board' width=608 height=886></canvas><br> BPM : <input id='bpm' type='number' step=1 /><br>
+    <button onclick='reset()'>reset</button><button onclick='test()'>test</button><br>
+</body>
+
+</html>
