@@ -57,12 +57,12 @@
             $('#seq0_pitch').html(pitch_);
 
             // それをパート分コピー
-            let part_org = $('#seq').html();
+            let part_org = $('#main').html();
             let part = "";
             for (let part_i = 0; part_i < pattern.length; part_i++) {
                 part += part_org.replace(/seq0_/g, `seq${part_i}_`);
             }
-            $('#seq').html(part);
+            $('#main').html(part);
 
             // こっからパートごと設定
             pattern.forEach(function(seq, part_i) {
@@ -224,7 +224,7 @@
             };
             dialog.showOpenDialog(window, options, (path) => {
                 if (path[0] !== null) {
-                    renderer.send('changeSeq', JSON.parse(fs.readFileSync(path[0], 'utf8')));
+                    renderer.send('changePattern', JSON.parse(fs.readFileSync(path[0], 'utf8')));
                 }
             });
         };
@@ -260,7 +260,7 @@
 <body>
     <button onClick='test()'>test</button><br>
     <button onClick='showSaveDialog()'>SaveAs</button><button onClick='showOpenDialog()'>Open</button><br>
-    <div id='seq'>
+    <div id='main'>
         <div id='seq0_group'></div> PCM : <select id='seq0_pcm'></select> Length : <input id='seq0_length' value=16 type='number' step=1 min=1 max=16> Volume : <input id='seq0_volume' type='number' value=1 step=0.1 min=0 max=4><br>
         <table id='seq0_table'>
             <tbody>

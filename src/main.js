@@ -71,6 +71,7 @@ app.on('ready', () => {
     });
     ipcMain.on('changePattern', (ev, message) => {
         if (mainWindow !== null) mainWindow.webContents.send('changePattern', message);
+        if (editWindow !== null) editWindow.reload();
     });
 
 });
