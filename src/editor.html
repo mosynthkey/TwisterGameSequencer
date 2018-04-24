@@ -102,15 +102,16 @@
                     });
                 });
 
-                for (let step_i = 0; step_i < seq['seq'].length; step_i++) {
+                for (let step_i = 0; step_i < maxLength; step_i++) {
                     if (seq['seq'][step_i] != 0) {
                         $(`#seq${part_i}_step${step_i}_sw`).css('background-color', 'grey');
                     }
                     $(`#seq${part_i}_step${step_i}_pitch`).on('input', () => {
-                        if (pattern[part_i]['seq'][step_i] != 0) pattern[part_i]['seq'][step_i] = pitch2speed($(`#seq${part_i}_step${step_i}_pitch`).val());
+                        console.log(pattern[part_i].seq[step_i]);
+                        if (pattern[part_i].seq[step_i] != 0) pattern[part_i].seq[step_i] = pitch2speed($(`#seq${part_i}_step${step_i}_pitch`).val());
                         renderer.send('changeSeq', {
                             index: part_i,
-                            seq: pattern[part_i]['seq']
+                            seq: pattern[part_i].seq
                         });
                     });
                 }
@@ -179,9 +180,11 @@
                         $(`#seq${part_i}_step${step_i}_lane`).css('background-color', 'white');
                     }
 
+                    /*
                     if (step_i < pattern[part_i].seq.length) {
                         $(`#seq${part_i}_step${step_i}_pitch`).val(speed2pitch(pattern[part_i].seq[step_i]));
                     }
+                    */
                 }
 
             });
@@ -258,7 +261,6 @@
 </head>
 
 <body>
-    <button onClick='test()'>test</button><br>
     <button onClick='showSaveDialog()'>SaveAs</button><button onClick='showOpenDialog()'>Open</button><br>
     <div id='main'>
         <div id='seq0_group'></div> PCM : <select id='seq0_pcm'></select> Length : <input id='seq0_length' value=16 type='number' step=1 min=1 max=16> Volume : <input id='seq0_volume' type='number' value=1 step=0.1 min=0 max=4><br>
