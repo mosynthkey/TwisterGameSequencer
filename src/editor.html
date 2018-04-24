@@ -7,6 +7,10 @@
         const ipcRenderer = require('electron').ipcRenderer;
         const fs = require('fs');
         const renderer = require('electron').ipcRenderer;
+        const remote = require('electron').remote;
+        const {
+            dialog
+        } = require('electron').remote;
 
         let pattern;
         let isUiCreated = false;
@@ -183,20 +187,48 @@
             });
         };
 
-        const test = () => {
-            function writeFile(path, data) {
-                fs.writeFile(path, data, 'utf8', (err) => {
-                    if (err) return console.log(err);
-                });
-            }
-            let pattern2save = JSON.parse(JSON.stringify(pattern));
-            pattern2save.forEach((seq) => {
-                delete seq.amp;
-                delete seq.cnt;
-                delete seq.buf;
+        const showSaveDialog = () => {
+            var window = remote.getCurrentWindow();
+            var options = {
+                title: 'Save As',
+                filters: [{
+                    name: 'TwisterGameSequencerPattern',
+                    extensions: ['json']
+                }],
+                properties: ['openFile', 'createDirectory']
+            };
+            dialog.showSaveDialog(window, options, (path) => {
+                if (path !== null) {
+                    let pattern2save = JSON.parse(JSON.stringify(pattern));
+                    pattern2save.forEach((seq) => {
+                        delete seq.amp;
+                        delete seq.cnt;
+                        delete seq.buf;
+                    });
+                    fs.writeFile(path, JSON.stringify(pattern2save), 'utf8', function(err) {
+                        if (err) return console.log(err);
+                    });
+                }
             });
-            writeFile('./src/pattern/save.json', JSON.stringify(pattern2save));
         };
+
+        const showOpenDialog = () => {
+            var window = remote.getCurrentWindow();
+            var options = {
+                title: 'Load',
+                filters: [{
+                    name: 'TwisterGameSequencerPattern',
+                    extensions: ['json']
+                }],
+                properties: ['openFile', 'createDirectory']
+            };
+            dialog.showOpenDialog(window, options, (path) => {
+                if (path[0] !== null) {
+                    renderer.send('changeSeq', JSON.parse(fs.readFileSync(path[0], 'utf8')));
+                }
+            });
+        };
+
     </script>
 
     <style type="text/css">
@@ -226,7 +258,8 @@
 </head>
 
 <body>
-    <button onClick='test()'>test</button>
+    <button onClick='test()'>test</button><br>
+    <button onClick='showSaveDialog()'>SaveAs</button><button onClick='showOpenDialog()'>Open</button><br>
     <div id='seq'>
         <div id='seq0_group'></div> PCM : <select id='seq0_pcm'></select> Length : <input id='seq0_length' value=16 type='number' step=1 min=1 max=16> Volume : <input id='seq0_volume' type='number' value=1 step=0.1 min=0 max=4><br>
         <table id='seq0_table'>

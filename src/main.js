@@ -69,6 +69,9 @@ app.on('ready', () => {
     ipcMain.on('changeVol', (ev, message) => {
         if (mainWindow !== null) mainWindow.webContents.send('changeVol', message);
     });
+    ipcMain.on('changePattern', (ev, message) => {
+        if (mainWindow !== null) mainWindow.webContents.send('changePattern', message);
+    });
 
 });
 

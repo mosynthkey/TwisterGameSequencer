@@ -32,12 +32,12 @@ class TwisterBoard {
         this.draw(x, y);
     }
 
-    release(c, r) {
+    release(x, y) {
         this.status_[y][x] = false;
         this.draw(x, y);
     }
 
-    click(c, r) {
+    click(x, y) {
         this.status_[y][x] = !this.status_[y][x];
         this.draw(x, y);
     }

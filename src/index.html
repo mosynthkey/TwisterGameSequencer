@@ -39,12 +39,14 @@
                 let pos = msg['note'] - 48;
                 let x = Math.floor(pos / 6);
                 let y = pos % 6;
-                if (msg['event'] == 'noteOn') {
-                    board.put(x, y);
-                    sequencer.put(x, y);
-                } else if (msg['event'] == 'noteOff') {
-                    board.release(x, y);
-                    sequencer.release(x, y);
+                if (0 <= x && x <= 3 && 0 <= y && y <= 5) {
+                    if (msg['event'] == 'noteOn') {
+                        board.put(x, y);
+                        sequencer.put(x, y);
+                    } else if (msg['event'] == 'noteOff') {
+                        board.release(x, y);
+                        sequencer.release(x, y);
+                    }
                 }
             };
 
@@ -59,16 +61,11 @@
             board.reset();
             sequencer.reset();
         };
-
-        const test = () => {
-            sequencer.loadPattern(JSON.parse(fs.readFileSync('./src/pattern/save.json', 'utf8')));
-        };
     </script>
 </head>
 
 <body align='center'>
-    <canvas id='board' width=608 height=886></canvas><br> BPM : <input id='bpm' type='number' step=1 /><br>
-    <button onclick='reset()'>reset</button><button onclick='test()'>test</button><br>
+    <canvas id='board' width=608 height=886></canvas><br> BPM : <input id='bpm' type='number' step=1 /><button onclick='reset()'>reset</button><br>
 </body>
 
 </html>

@@ -52,6 +52,9 @@ class TwisterSequencer {
         }); 
         ipcRenderer.on('changeVol', (ev, message) => {
             this.changeVol(message.index, message.vol);
+        });
+        ipcRenderer.on('changePattern', (ev, message) => {
+            this.loadPattern(message);
         }); 
     }
 
