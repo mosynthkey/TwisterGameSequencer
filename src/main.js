@@ -25,7 +25,7 @@ function createWindow() {
     }));
 
     // 開発ツールを有効化
-    mainWindow.webContents.openDevTools();
+    //mainWindow.webContents.openDevTools();
 
     mainWindow.on('closed', () => {
         app.quit();

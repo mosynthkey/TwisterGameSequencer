@@ -20,7 +20,7 @@
         $(() => {
             // init sequencer
             sequencer = new TwisterSequencer(audioContext, audioContext.destination);
-            sequencer.loadPattern(JSON.parse(fs.readFileSync('./src/pattern/default.json', 'utf8')));
+            sequencer.loadPattern(JSON.parse(fs.readFileSync('./src/pattern/makerfaire.json', 'utf8')));
             sequencer.clickHandler = () => {
                 // send click to main.js
                 require('electron').ipcRenderer.send('click', sequencer.pattern_);
