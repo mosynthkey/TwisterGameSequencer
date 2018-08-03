@@ -142,11 +142,12 @@
 
             // Selector
             pattern.forEach(function(seq, part_i) {
-                ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'].forEach((select, index) => {
-                    let option = $('<option>').val(index).text(select);
-                    if (select == seq['sel']) option.prop('selected', true);
+                for (let index = 0; index < 8; ++index)
+                {
+                    let option = $('<option>').val(index).text(index);
+                    if (index == seq['sel']) option.prop('selected', true);
                     $(`#seq${part_i}_sel`).append(option);
-                });
+                }
             });
 
             // add event handler

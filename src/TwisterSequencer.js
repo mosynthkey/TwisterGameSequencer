@@ -12,9 +12,7 @@ class TwisterSequencer {
         this.pattern_ = [];
         this.clickHandler_ = null;
         this.history_ = [];
-        this.selector_ = [
-            ['r0', 'r1', 'r2'], ['r3', 'r4', 'r5'], ['b1', 'b2', 'b3'], ['b4', 'b5', 'b6'],
-            ['y0', 'y1', 'y2'], ['y3', 'y4', 'y5'], ['g1', 'g2', 'g3'], ['g4', 'g5', 'g6']];
+        this.selector_ = [[], [], [], [], [], [], [], []];
         this.selectorOccupation_ = ['', '', '', '', '', '', '', ''];
 
         // 各busをmuteしてるかしてないかの管理。trueで再生されてる(muteされてない)
@@ -73,7 +71,6 @@ class TwisterSequencer {
         // play step
         this.scheduler_.insert(now, (e) => {
             this.pattern_.forEach(function(seq) {
-
                 seq.cnt = clip(seq.cnt, 0, seq.seq.length - 1);
                 if (seq.seq[seq.cnt] != 0) {
                     const x = colorTable.indexOf(seq.grp.substr(0, 1));
@@ -104,6 +101,8 @@ class TwisterSequencer {
 
         this.pattern_ = pattern;
 
+        this.rebuildSelector();
+
         // オーディオファイルのロード
         const loadAudioFile = (url) => {
             return new Promise((resolve, reject) => {
@@ -125,6 +124,7 @@ class TwisterSequencer {
             seq.amp = audioContext.createGain();
             seq.amp.gain.setValueAtTime(seq.vol, 0);
             seq.amp.connect(this.buses_[seq.grp]);
+
         }
         Promise.all(audioFiles.map(loadAudioFile))
             .then((audioFiles) => {
@@ -170,12 +170,14 @@ class TwisterSequencer {
         let sel = this.getSelectorIndex(bus);
         if (this.selectorOccupation_[sel] != '') {
             let bus_i = this.selectorOccupation_[sel];
-            let x_i = colorTable.indexOf(bus_i.substr(0, 1));
-            let y_i = parseInt(bus_i.substr(1, 1));
-            if (0 <= x_i && x_i < 4 && 0 <= y_i && y_i < 6)
-            {
-                this.isPlaying_[x_i][y_i] = false;
-                this.update(x_i, y_i);
+            if (bus_i !== undefined) {
+                let x_i = colorTable.indexOf(bus_i.substr(0, 1));
+                let y_i = parseInt(bus_i.substr(1, 1));
+                if (0 <= x_i && x_i < 4 && 0 <= y_i && y_i < 6)
+                {
+                    this.isPlaying_[x_i][y_i] = false;
+                    this.update(x_i, y_i);
+                }
             }
         }
         this.selectorOccupation_[sel] = bus;
@@ -257,6 +259,8 @@ class TwisterSequencer {
     changeSelector(index, sel) {
         let seq = this.pattern_[index];
         seq.sel = sel;
+        this.selectorOccupation_ = ['', '', '', '', '', '', '', '']; // 強引
+        this.rebuildSelector();
     }
 
     getSelectorIndex(bus) {
@@ -264,6 +268,17 @@ class TwisterSequencer {
             if (this.selector_[selector_i].indexOf(bus) >= 0) return selector_i;
         }
         return -1;
+    }
+
+    rebuildSelector()
+    {
+        let selector = [[], [], [], [], [], [], [], []];
+        this.pattern_.forEach(function(seq) {
+            let sel = seq.sel;
+            let grp = seq.grp;
+            selector[sel].push(grp);
+        });
+        this.selector_ = selector;
     }
 
     reset() {

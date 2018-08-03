@@ -54,7 +54,6 @@
             midiIn.handler = (msg) => {
                 if (!calibrationMode) {
                     let pos = midiMap.indexOf(parseInt(msg['note']));
-                    console.log(`${midiMap} - ${pos} note:${msg['note']}`);
                     if (pos < 0)
                     {
                         console.log('out of midi map');
