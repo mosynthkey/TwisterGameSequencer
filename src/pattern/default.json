@@ -4,55 +4,63 @@
         "pcm": "Kick EDM 1.mp3",
         "vol": 1,
         "seq": [1, 0, 0, 0],
-        "sel": 0
+        "sel": 0,
+        "m_p": "mono"
     },
     {
         "grp": "r1",
         "pcm": "Snare EDM.mp3",
         "vol": 1,
         "seq": [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1],
-        "sel": 1
+        "sel": 1,
+        "m_p": "mono"
     },
     {
         "grp": "r2",
         "pcm": "Snare EDM.mp3",
         "vol": 1,
         "seq": [1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0],
-        "sel": 2
+        "sel": 2,
+        "m_p": "poly"
     },
     {
         "grp": "b1",
         "pcm": "Bass_C.mp3",
         "vol": 1,
         "seq": [1, 1, 2, 2],
-        "sel": 3
+        "sel": 3,
+        "m_p": "poly"
     },
     {
         "grp": "y2",
         "pcm": "CHat EDM 1.mp3",
         "vol": 1,
         "seq": [1, 1, 1, 0, 1, 1],
-        "sel": 4
+        "sel": 4,
+        "m_p": "poly"
     },
     {
         "grp": "g1",
         "pcm": "Saw_C.mp3",
         "vol": 1,
         "seq": [2, 0, 0, 2, 0, 0, 2, 0, 2, 0, 0, 2, 0, 0, 2, 0],
-        "sel": 5
+        "sel": 5,
+        "m_p": "poly"
     },
     {
         "grp": "g2",
         "pcm": "PitchBlip_C.mp3",
         "vol": 0.6,
         "seq": [2, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0],
-        "sel": 6
+        "sel": 6,
+        "m_p": "poly"
     },
     {
         "grp": "g3",
         "pcm": "M1Piano_CMaj7.mp3",
         "vol": 1,
         "seq": [1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 0],
-        "sel": 7
+        "sel": 7,
+        "m_p": "poly"
     }
 ]

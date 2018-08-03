@@ -62,6 +62,9 @@ class TwisterSequencer {
         ipcRenderer.on('changeSelector', (ev, message) => {
             this.changeSelector(message.index, message.sel);
         }); 
+        ipcRenderer.on('changeMonoPoly', (ev, message) => {
+            this.changeMonoPoly(message.index, message.m_p);
+        }); 
     }
 
     trigger(e) {
@@ -78,6 +81,14 @@ class TwisterSequencer {
                     if (isPlaying[x][y]) {
                         const t0 = e.playbackTime;
                         const osc = audioContext.createBufferSource();
+                        console.log(seq);
+                        // monophonic
+                        if (seq.m_p == 'mono')
+                        {
+                            if (seq.osc !== undefined) seq.osc.disconnect();
+                            seq.osc = osc;
+                        }
+
                         osc.buffer = seq.buf;
                         osc.playbackRate.value = seq.seq[seq.cnt]
                         osc.connect(seq.amp);
@@ -261,6 +272,11 @@ class TwisterSequencer {
         seq.sel = sel;
         this.selectorOccupation_ = ['', '', '', '', '', '', '', '']; // 強引
         this.rebuildSelector();
+    }
+
+    changeMonoPoly(index, m_p) {
+        let seq = this.pattern_[index];
+        seq.m_p = m_p;
     }
 
     getSelectorIndex(bus) {

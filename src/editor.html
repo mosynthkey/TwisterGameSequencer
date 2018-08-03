@@ -110,6 +110,14 @@
                     });
                 });
 
+                $(`#seq${part_i}_m_p`).on('change', () => {
+                    let m_p = $(`#seq${part_i}_m_p option:selected`).text();
+                    renderer.send('changeMonoPoly', {
+                        index: part_i,
+                        m_p: m_p
+                    });
+                });
+
                 for (let step_i = 0; step_i < maxLength; step_i++) {
                     if (seq['seq'][step_i] != 0) {
                         $(`#seq${part_i}_step${step_i}_sw`).css('background-color', 'grey');
@@ -148,6 +156,16 @@
                     if (index == seq['sel']) option.prop('selected', true);
                     $(`#seq${part_i}_sel`).append(option);
                 }
+            });
+
+            pattern.forEach(function(seq, part_i) {
+                let option = $('<option>').val(0).text('poly');
+                if (seq['m_p'] == 'poly') option.prop('selected', true);
+                $(`#seq${part_i}_m_p`).append(option);
+
+                option = $('<option>').val(1).text('mono');
+                if (seq['m_p'] == 'mono') option.prop('selected', true);
+                $(`#seq${part_i}_m_p`).append(option);
             });
 
             // add event handler
@@ -280,7 +298,7 @@
 <body>
     <button onClick='showSaveDialog()'>SaveAs</button><button onClick='showOpenDialog()'>Open</button><br>
     <div id='main'>
-        <div id='seq0_group'></div> PCM : <select id='seq0_pcm'></select> Length : <input id='seq0_length' value=16 type='number' step=1 min=1 max=16> Volume : <input id='seq0_volume' type='number' value=1 step=0.1 min=0 max=4> Selector : <select id='seq0_sel'></select><br>
+        <div id='seq0_group'></div> PCM : <select id='seq0_pcm'></select> Length : <input id='seq0_length' value=16 type='number' step=1 min=1 max=16> Volume : <input id='seq0_volume' type='number' value=1 step=0.1 min=0 max=4> Selector : <select id='seq0_sel'></select> Mono/Poly : <select id='seq0_m_p'></select><br>
         <table id='seq0_table'>
             <tbody>
                 <tr id='seq0_lane' class='lane'>

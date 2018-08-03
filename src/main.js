@@ -25,7 +25,7 @@ function createWindow() {
     }));
 
     // 開発ツールを有効化
-    //mainWindow.webContents.openDevTools();
+    mainWindow.webContents.openDevTools();
 
     mainWindow.on('closed', () => {
         app.quit();
@@ -75,6 +75,9 @@ app.on('ready', () => {
     });
     ipcMain.on('changeSelector', (ev, message) => {
         if (mainWindow !== null) mainWindow.webContents.send('changeSelector', message);
+    });
+    ipcMain.on('changeMonoPoly', (ev, message) => {
+        if (mainWindow !== null) mainWindow.webContents.send('changeMonoPoly', message);
     });
 
 });
