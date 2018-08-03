@@ -84,7 +84,8 @@ class TwisterSequencer {
                         // monophonic
                         if (seq.m_p == 'mono')
                         {
-                            // monomode ...
+                            if (seq.osc !== undefined) seq.osc.disconnect();
+                            seq.osc = osc;
                         }
 
                         osc.buffer = seq.buf;

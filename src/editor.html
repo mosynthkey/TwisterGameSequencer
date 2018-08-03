@@ -242,6 +242,7 @@
                         delete seq.amp;
                         delete seq.cnt;
                         delete seq.buf;
+                        delete seq.osc;
                     });
                     fs.writeFile(path, JSON.stringify(pattern2save), 'utf8', function(err) {
                         if (err) return console.log(err);
