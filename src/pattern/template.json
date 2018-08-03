@@ -3,144 +3,168 @@
         "grp": "r0",
         "pcm": "Kick EDM 1.mp3",
         "seq": [1, 0, 0, 0],
-        "vol": 0.6
+        "vol": 0.6,
+        "sel": 1
     },
     {
         "grp": "r1",
         "pcm": "Kick EDM 1.mp3",
         "seq": [1, 0, 0, 0],
-        "vol": 0.6
+        "vol": 0.6,
+        "sel": 1
     },
     {
         "grp": "r2",
         "pcm": "Kick EDM 1.mp3",
         "seq": [1, 0, 0, 0],
-        "vol": 0.6
+        "vol": 0.6,
+        "sel": 1
     },
     {
         "grp": "r3",
         "pcm": "Kick EDM 1.mp3",
         "seq": [1, 0, 0, 0],
-        "vol": 0.6
+        "vol": 0.6,
+        "sel": 1
     },
     {
         "grp": "r4",
         "pcm": "Kick EDM 1.mp3",
         "seq": [1, 0, 0, 0],
-        "vol": 0.6
+        "vol": 0.6,
+        "sel": 1
     },
     {
         "grp": "r5",
         "pcm": "Kick EDM 1.mp3",
         "seq": [1, 0, 0, 0],
-        "vol": 0.6
+        "vol": 0.6,
+        "sel": 1
     },
     {
         "grp": "b0",
         "pcm": "Kick EDM 1.mp3",
         "seq": [1, 0, 0, 0],
-        "vol": 0.6
+        "vol": 0.6,
+        "sel": 1
     },
     {
         "grp": "b1",
         "pcm": "Kick EDM 1.mp3",
         "seq": [1, 0, 0, 0],
-        "vol": 0.6
+        "vol": 0.6,
+        "sel": 1
     },
     {
         "grp": "b2",
         "pcm": "Kick EDM 1.mp3",
         "seq": [1, 0, 0, 0],
-        "vol": 0.6
+        "vol": 0.6,
+        "sel": 1
     },
     {
         "grp": "b3",
         "pcm": "Kick EDM 1.mp3",
         "seq": [1, 0, 0, 0],
-        "vol": 0.6
+        "vol": 0.6,
+        "sel": 1
     },
     {
         "grp": "b4",
         "pcm": "Kick EDM 1.mp3",
         "seq": [1, 0, 0, 0],
-        "vol": 0.6
+        "vol": 0.6,
+        "sel": 1
     },
     {
         "grp": "b5",
         "pcm": "Kick EDM 1.mp3",
         "seq": [1, 0, 0, 0],
-        "vol": 0.6
+        "vol": 0.6,
+        "sel": 1
     },
     {
         "grp": "y0",
         "pcm": "Kick EDM 1.mp3",
         "seq": [1, 0, 0, 0],
-        "vol": 0.6
+        "vol": 0.6,
+        "sel": 1
     },
     {
         "grp": "y1",
         "pcm": "Kick EDM 1.mp3",
         "seq": [1, 0, 0, 0],
-        "vol": 0.6
+        "vol": 0.6,
+        "sel": 1
     },
     {
         "grp": "y2",
         "pcm": "Kick EDM 1.mp3",
         "seq": [1, 0, 0, 0],
-        "vol": 0.6
+        "vol": 0.6,
+        "sel": 1
     },
     {
         "grp": "y3",
         "pcm": "Kick EDM 1.mp3",
         "seq": [1, 0, 0, 0],
-        "vol": 0.6
+        "vol": 0.6,
+        "sel": 1
     },
     {
         "grp": "y4",
         "pcm": "Kick EDM 1.mp3",
         "seq": [1, 0, 0, 0],
-        "vol": 0.6
+        "vol": 0.6,
+        "sel": 1
     },
     {
         "grp": "y5",
         "pcm": "Kick EDM 1.mp3",
         "seq": [1, 0, 0, 0],
-        "vol": 0.6
+        "vol": 0.6,
+        "sel": 1
     },
     {
         "grp": "g0",
         "pcm": "Kick EDM 1.mp3",
         "seq": [1, 0, 0, 0],
-        "vol": 0.6
+        "vol": 0.6,
+        "sel": 1
     },
     {
         "grp": "g1",
         "pcm": "Kick EDM 1.mp3",
         "seq": [1, 0, 0, 0],
-        "vol": 0.6
+        "vol": 0.6,
+        "sel": 1
     },
     {
         "grp": "g2",
         "pcm": "Kick EDM 1.mp3",
         "seq": [1, 0, 0, 0],
-        "vol": 0.6
+        "vol": 0.6,
+        "sel": 1
     },
     {
         "grp": "g3",
         "pcm": "Kick EDM 1.mp3",
         "seq": [1, 0, 0, 0],
-        "vol": 0.6
+        "vol": 0.6,
+        "sel": 1
     },
     {
         "grp": "g4",
         "pcm": "Kick EDM 1.mp3",
         "seq": [1, 0, 0, 0],
-        "vol": 0.6
+        "vol": 0.6,
+        "sel": 1
     },
     {
         "grp": "g5",
         "pcm": "Kick EDM 1.mp3",
         "seq": [1, 0, 0, 0],
-        "vol": 0.6
+        "vol": 0.6,
+        "sel": 1
     }
 ]

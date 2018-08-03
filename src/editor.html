@@ -102,12 +102,19 @@
                     });
                 });
 
+                $(`#seq${part_i}_sel`).on('change', () => {
+                    let sel = $(`#seq${part_i}_sel option:selected`).text();
+                    renderer.send('changeSelector', {
+                        index: part_i,
+                        sel: sel
+                    });
+                });
+
                 for (let step_i = 0; step_i < maxLength; step_i++) {
                     if (seq['seq'][step_i] != 0) {
                         $(`#seq${part_i}_step${step_i}_sw`).css('background-color', 'grey');
                     }
                     $(`#seq${part_i}_step${step_i}_pitch`).on('input', () => {
-                        console.log(pattern[part_i].seq[step_i]);
                         if (pattern[part_i].seq[step_i] != 0) pattern[part_i].seq[step_i] = pitch2speed($(`#seq${part_i}_step${step_i}_pitch`).val());
                         renderer.send('changeSeq', {
                             index: part_i,
@@ -130,6 +137,15 @@
                         $(`#seq${part_i}_pcm`).append(option);
                     });
 
+                });
+            });
+
+            // Selector
+            pattern.forEach(function(seq, part_i) {
+                ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'].forEach((select, index) => {
+                    let option = $('<option>').val(index).text(select);
+                    if (select == seq['sel']) option.prop('selected', true);
+                    $(`#seq${part_i}_sel`).append(option);
                 });
             });
 
@@ -263,7 +279,7 @@
 <body>
     <button onClick='showSaveDialog()'>SaveAs</button><button onClick='showOpenDialog()'>Open</button><br>
     <div id='main'>
-        <div id='seq0_group'></div> PCM : <select id='seq0_pcm'></select> Length : <input id='seq0_length' value=16 type='number' step=1 min=1 max=16> Volume : <input id='seq0_volume' type='number' value=1 step=0.1 min=0 max=4><br>
+        <div id='seq0_group'></div> PCM : <select id='seq0_pcm'></select> Length : <input id='seq0_length' value=16 type='number' step=1 min=1 max=16> Volume : <input id='seq0_volume' type='number' value=1 step=0.1 min=0 max=4> Selector : <select id='seq0_sel'></select><br>
         <table id='seq0_table'>
             <tbody>
                 <tr id='seq0_lane' class='lane'>

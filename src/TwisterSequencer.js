@@ -11,6 +11,11 @@ class TwisterSequencer {
         this.bpm_ = 120;
         this.pattern_ = [];
         this.clickHandler_ = null;
+        this.history_ = [];
+        this.selector_ = [
+            ['r0', 'r1', 'r2'], ['r3', 'r4', 'r5'], ['b1', 'b2', 'b3'], ['b4', 'b5', 'b6'],
+            ['y0', 'y1', 'y2'], ['y3', 'y4', 'y5'], ['g1', 'g2', 'g3'], ['g4', 'g5', 'g6']];
+        this.selectorOccupation_ = ['', '', '', '', '', '', '', ''];
 
         // 各busをmuteしてるかしてないかの管理。trueで再生されてる(muteされてない)
         this.isPlaying_ = [];
@@ -56,10 +61,14 @@ class TwisterSequencer {
         ipcRenderer.on('changePattern', (ev, message) => {
             this.loadPattern(message);
         }); 
+        ipcRenderer.on('changeSelector', (ev, message) => {
+            this.changeSelector(message.index, message.sel);
+        }); 
     }
 
     trigger(e) {
         const now = e.playbackTime;
+        let isPlaying = this.isPlaying_;
 
         // play step
         this.scheduler_.insert(now, (e) => {
@@ -67,12 +76,16 @@ class TwisterSequencer {
 
                 seq.cnt = clip(seq.cnt, 0, seq.seq.length - 1);
                 if (seq.seq[seq.cnt] != 0) {
-                    const t0 = e.playbackTime;
-                    const osc = audioContext.createBufferSource();
-                    osc.buffer = seq.buf;
-                    osc.playbackRate.value = seq.seq[seq.cnt]
-                    osc.connect(seq.amp);
-                    osc.start(t0);
+                    const x = colorTable.indexOf(seq.grp.substr(0, 1));
+                    const y = parseInt(seq.grp.substr(1, 1));
+                    if (isPlaying[x][y]) {
+                        const t0 = e.playbackTime;
+                        const osc = audioContext.createBufferSource();
+                        osc.buffer = seq.buf;
+                        osc.playbackRate.value = seq.seq[seq.cnt]
+                        osc.connect(seq.amp);
+                        osc.start(t0);
+                    }
                 }
                 seq.cnt = (seq.cnt + 1) % seq.seq.length;
             });
@@ -141,17 +154,63 @@ class TwisterSequencer {
     }
 
     click(x, y) {
-        this.isPlaying_[x][y] = !this.isPlaying_[x][y];
+        if (this.isPlaying_[x][y])
+        {
+            this.release(x, y);
+        }
+        else
+        {
+            this.put(x, y);
+        }
         this.update(x, y);
     }
 
     put(x, y) {
+        let bus = `${colorTable[x]}${y}`;
+        let sel = this.getSelectorIndex(bus);
+        if (this.selectorOccupation_[sel] != '') {
+            let bus_i = this.selectorOccupation_[sel];
+            let x_i = colorTable.indexOf(bus_i.substr(0, 1));
+            let y_i = parseInt(bus_i.substr(1, 1));
+            if (0 <= x_i && x_i < 4 && 0 <= y_i && y_i < 6)
+            {
+                this.isPlaying_[x_i][y_i] = false;
+                this.update(x_i, y_i);
+            }
+        }
+        this.selectorOccupation_[sel] = bus;
         this.isPlaying_[x][y] = true;
+        this.history_.push(bus);
         this.update(x, y);
     }
 
     release(x, y) {
+        let bus = `${colorTable[x]}${y}`;
+        let sel = this.getSelectorIndex(bus);
         this.isPlaying_[x][y] = false;
+        this.history_.some((v, i) => {
+            if (v == bus) this.history_.splice(i, 1);
+        });
+        if (this.selectorOccupation_[sel] == bus) {
+            for (let history_i = this.history_.length - 1; history_i >= 0; --history_i) {
+                let bus_i = this.history_[history_i];
+                if (this.getSelectorIndex(bus_i) == sel) {
+                    let x_i = colorTable.indexOf(bus_i.substr(0, 1));
+                    let y_i = parseInt(bus_i.substr(1, 1));
+                    if (0 <= x_i && x_i < 4 && 0 <= y_i && y_i < 6)
+                    {
+                        this.selectorOccupation_[sel] = bus_i;
+                        this.isPlaying_[x_i][y_i] = true;
+                        this.update(x_i, y_i);
+                        break;
+                    }
+                }
+            }
+
+            if (this.selectorOccupation_[sel] == bus) {
+                this.selectorOccupation_[sel] = '';
+            }
+        }
         this.update(x, y);
     }
 
@@ -187,13 +246,24 @@ class TwisterSequencer {
                 this.pattern_[index]['pcm'] = newPcmFileName;
                 this.pattern_[index]['buf'] = buf;
             })
-            .catch(console.error);
     }
 
     changeVol(index, vol) {
         let seq = this.pattern_[index];
         seq.vol = vol;
         seq.amp.gain.setValueAtTime(seq.vol, 0);
+    }
+
+    changeSelector(index, sel) {
+        let seq = this.pattern_[index];
+        seq.sel = sel;
+    }
+
+    getSelectorIndex(bus) {
+        for (let selector_i = 0; selector_i < this.selector_.length; ++selector_i) {
+            if (this.selector_[selector_i].indexOf(bus) >= 0) return selector_i;
+        }
+        return -1;
     }
 
     reset() {

@@ -11,7 +11,11 @@
         const OmniMidiIn = require('./OmniMidiIn.js');
         const audioContext = new AudioContext();
 
+        const midiMapPath = './src/pattern/midimap.json';
         let board, sequencer;
+        let calibrationMode = false;
+        let midiMap;
+        let calib_pos = 0;
 
         $(() => {
             // init sequencer
@@ -27,26 +31,54 @@
             $('#board')[0].addEventListener('click', (e) => {
                 [x, y] = board.getClickedCircle(e);
                 if (0 <= x && x <= 3 && 0 <= y && y <= 5) {
-                    board.click(x, y);
-                    sequencer.click(x, y);
+                    if (!calibrationMode) {
+                        board.click(x, y);
+                        sequencer.click(x, y);
+                    } else {
+                        calib_pos = y + x * 6;
+                        board.put(x, y);
+                    }
                 }
             }, false);
+
+            // load midiMap
+            try {
+                midiMap = JSON.parse(fs.readFileSync(midiMapPath,'utf8'));
+            } catch(err) {
+                midiMap = new Array(4 * 6);
+                for (let i = 0; i < 4 * 6; i++) midiMap[i] = i + 48;
+            }
 
             // init MIDI
             let midiIn = new OmniMidiIn();
             midiIn.handler = (msg) => {
-                if (msg['note'] < 48 || 72 < msg['note']) return; // nanokey
-                let pos = msg['note'] - 48;
-                let x = Math.floor(pos / 6);
-                let y = pos % 6;
-                if (0 <= x && x <= 3 && 0 <= y && y <= 5) {
-                    if (msg['event'] == 'noteOn') {
-                        board.put(x, y);
-                        sequencer.put(x, y);
-                    } else if (msg['event'] == 'noteOff') {
-                        board.release(x, y);
-                        sequencer.release(x, y);
+                if (!calibrationMode) {
+                    let pos = midiMap.indexOf(parseInt(msg['note']));
+                    console.log(`${midiMap} - ${pos} note:${msg['note']}`);
+                    if (pos < 0)
+                    {
+                        console.log('out of midi map');
                     }
+                    else
+                    {
+                        let x = Math.floor(pos / 6);
+                        let y = pos % 6;
+                        if (0 <= x && x <= 3 && 0 <= y && y <= 5) {
+                            if (msg['event'] == 'noteOn') {
+                                board.put(x, y);
+                                sequencer.put(x, y);
+                            } else if (msg['event'] == 'noteOff') {
+                                board.release(x, y);
+                                sequencer.release(x, y);
+                            }
+                        }
+                    }
+                } else {
+                    midiMap[calib_pos] = msg['note'];
+                    let calib_x = Math.floor(calib_pos / 6);
+                    let calib_y = calib_pos % 6;
+                    console.log(`calibration (${calib_x}, ${calib_y}) => ${msg['note']}`);
+                    board.release(calib_x, calib_y);
                 }
             };
 
@@ -61,11 +93,29 @@
             board.reset();
             sequencer.reset();
         };
+
+        const calibration = () => {
+            calibrationMode = !calibrationMode;
+            if (calibrationMode)
+            {
+                $('#calib').text('exit');
+            }
+            else
+            {
+                $('#calib').text('calibration');
+
+                fs.writeFile(midiMapPath, JSON.stringify(midiMap), 'utf8', function(err) {
+                    if (err) return console.log(err);
+                });
+
+            }
+        };
     </script>
 </head>
 
 <body align='center'>
     <canvas id='board' width=608 height=886></canvas><br> BPM : <input id='bpm' type='number' step=1 /><button onclick='reset()'>reset</button><br>
+    <button id='calib' onclick='calibration()'>calibration</button><br>
 </body>
 
 </html>
