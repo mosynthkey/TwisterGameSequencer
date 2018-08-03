@@ -81,7 +81,6 @@ class TwisterSequencer {
                     if (isPlaying[x][y]) {
                         const t0 = e.playbackTime;
                         const osc = audioContext.createBufferSource();
-                        console.log(seq);
                         // monophonic
                         if (seq.m_p == 'mono')
                         {
